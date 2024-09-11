@@ -8,13 +8,13 @@ import logging
 load_dotenv()
 
 # Access environment variables
-api_key = os.getenv('API_KEY')
-zone_id = os.getenv('ZONE_ID')
-dns_record_id = os.getenv('DNS_RECORD_ID')
-domain_name = os.getenv('DOMAIN_NAME')
-auth_key = os.getenv('AUTH_KEY')
-auth_email = os.getenv('AUTH_EMAIL')
-proxied = os.getenv("PROXIED")
+api_key = os.getenv('api_key')
+zone_id = os.getenv('zone_id')
+dns_record_id = os.getenv('dns_record_id')
+domain_name = os.getenv('domain_name')
+auth_key = os.getenv('auth_key')
+auth_email = os.getenv('auth_email')
+proxied = os.getenv("proxied")
 
 print(proxied)
 print(os.environ)
