@@ -16,6 +16,10 @@ auth_key = os.getenv('AUTH_KEY')
 auth_email = os.getenv('AUTH_EMAIL')
 proxied = os.getenv("PROXIED")
 
+print(proxied)
+print(os.environ)
+
+
 current_date = datetime.datetime.now().strftime("%d.%m.%Y %H:%M")
 req_headers = {
     'Content-Type': "application/json",
