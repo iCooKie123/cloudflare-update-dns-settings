@@ -8,7 +8,6 @@ import logging
 load_dotenv()
 
 # Access environment variables
-api_key = os.getenv('api_key')
 zone_id = os.getenv('zone_id')
 dns_record_id = os.getenv('dns_record_id')
 domain_name = os.getenv('domain_name')
@@ -16,15 +15,11 @@ auth_key = os.getenv('auth_key')
 auth_email = os.getenv('auth_email')
 proxied = os.getenv("proxied")
 
-print(proxied)
-print(os.environ)
-
-
 current_date = datetime.datetime.now().strftime("%d.%m.%Y %H:%M")
 req_headers = {
     'Content-Type': "application/json",
     'X-Auth-Email': auth_email,
-    'X-Auth-Key': api_key
+    'X-Auth-Key': auth_key
 }
 
 logging.basicConfig(
