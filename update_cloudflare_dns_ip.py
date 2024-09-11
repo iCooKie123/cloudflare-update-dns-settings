@@ -37,14 +37,15 @@ def get_public_ip():
         response_ip = aws_conn.getresponse()
         if response_ip.status != 200:
             raise ValueError(
-                f"Failed to get IP, status code: {
-                    response_ip.status}, message: {response_ip.read().decode()}"
+                "Failed to get IP, status code: {}, message: {}".format(
+                    response_ip.status, response_ip.read().decode()
+                )
             )
         ip = response_ip.read().decode().strip()
         aws_conn.close()
         return ip
     except Exception as e:
-        logging.error(f"Error getting public IP: {e}")
+        logging.error("Error getting public IP: {}".format(e))
         raise
 
 
@@ -52,13 +53,14 @@ def check_sameip(current_ip):
     try:
         cloudflare_conn = http.client.HTTPSConnection("api.cloudflare.com")
         cloudflare_conn.request(
-            "GET", f"/client/v4/zones/{zone_id}/dns_records/{dns_record_id}", headers=req_headers
+            "GET", "/client/v4/zones/{}/dns_records/{}".format(zone_id, dns_record_id), headers=req_headers
         )
         response = cloudflare_conn.getresponse()
         if response.status != 200:
             raise ValueError(
-                f"Failed to check IP, status code: {
-                    response.status}, message: {response.read().decode()}"
+                "Failed to check IP, status code: {}, message: {}".format(
+                    response.status, response.read().decode()
+                )
             )
 
         result = response.read().decode().strip()
@@ -68,7 +70,7 @@ def check_sameip(current_ip):
         cloudflare_conn.close()
         return dns_ip == current_ip
     except Exception as e:
-        logging.error(f"Error checking IP: {e}")
+        logging.error("Error checking IP: {}".format(e))
         raise
 
 
@@ -76,7 +78,7 @@ def update_cloudflare_ip(public_ip):
     try:
         cloudflare_conn = http.client.HTTPSConnection("api.cloudflare.com")
 
-        comment = f"Updated on {current_date}"
+        comment = "Updated on {}".format(current_date)
 
         content = public_ip
         payload = {
@@ -93,21 +95,22 @@ def update_cloudflare_ip(public_ip):
         json_payload = json.dumps(payload)
 
         cloudflare_conn.request(
-            "PUT", f"/client/v4/zones/{zone_id}/dns_records/{dns_record_id}", body=json_payload, headers=req_headers
+            "PUT", "/client/v4/zones/{}/dns_records/{}".format(zone_id, dns_record_id), body=json_payload, headers=req_headers
         )
 
         res = cloudflare_conn.getresponse()
         if res.status != 200:
             raise ValueError(
-                f"Failed to update IP, status code: {
-                    res.status}, message: {res.read().decode()}"
+                "Failed to update IP, status code: {}, message: {}".format(
+                    res.status, res.read().decode()
+                )
             )
 
         data = res.read()
         cloudflare_conn.close()
         return data
     except Exception as e:
-        logging.error(f"Error updating Cloudflare IP: {e}")
+        logging.error("Error updating Cloudflare IP: {}".format(e))
         raise
 
 
@@ -116,13 +119,15 @@ def main():
         current_ip = get_public_ip()
         same_ip = check_sameip(current_ip)
         if same_ip:
-            logging.info(f"Same IP detected ({current_ip}), not updating")
+            logging.info(
+                "Same IP detected ({}), not updating".format(current_ip))
         else:
             data = update_cloudflare_ip(current_ip)
-            logging.info(f"Updated IP for {domain_name} to {current_ip}")
+            logging.info("Updated IP for {} to {}".format(
+                domain_name, current_ip))
             logging.info("Response: " + data.decode("utf-8"))
     except Exception as e:
-        logging.error(f"{e}")
+        logging.error("{}".format(e))
 
 
 if __name__ == '__main__':
