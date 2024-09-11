@@ -37,8 +37,10 @@ def get_public_ip():
         aws_conn.request("GET", "/")
         response_ip = aws_conn.getresponse()
         if response_ip.status != 200:
-            raise ValueError(f"Failed to get IP, status code: {
-                             response_ip.status}, message: {response_ip.read().decode()}")
+            raise ValueError(
+                f"Failed to get IP, status code: {
+                    response_ip.status}, message: {response_ip.read().decode()}"
+            )
         ip = response_ip.read().decode().strip()
         aws_conn.close()
         return ip
@@ -56,8 +58,10 @@ def check_sameip(current_ip):
         response = cloudflare_conn.getresponse()
 
         if response.status != 200:
-            raise ValueError(f"Failed to check IP, status code: {
-                             response.status}, message: {response.read().decode()}")
+            raise ValueError(
+                f"Failed to check IP, status code: {
+                    response.status}, message: {response.read().decode()}"
+            )
 
         result = response.read().decode().strip()
         json_result = json.loads(result)
