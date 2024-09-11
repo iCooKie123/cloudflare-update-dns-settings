@@ -13,7 +13,7 @@ dns_record_id = os.getenv('dns_record_id')
 domain_name = os.getenv('domain_name')
 auth_key = os.getenv('auth_key')
 auth_email = os.getenv('auth_email')
-proxied = os.getenv("proxied")
+proxied = True
 
 current_date = datetime.datetime.now().strftime("%d.%m.%Y %H:%M")
 req_headers = {
