@@ -16,7 +16,6 @@ auth_key = os.getenv('AUTH_KEY')
 auth_email = os.getenv('AUTH_EMAIL')
 proxied = os.getenv("PROXIED")
 
-
 current_date = datetime.datetime.now().strftime("%d.%m.%Y %H:%M")
 req_headers = {
     'Content-Type': "application/json",
@@ -56,7 +55,6 @@ def check_sameip(current_ip):
             "GET", f"/client/v4/zones/{zone_id}/dns_records/{dns_record_id}", headers=req_headers
         )
         response = cloudflare_conn.getresponse()
-
         if response.status != 200:
             raise ValueError(
                 f"Failed to check IP, status code: {
@@ -95,8 +93,7 @@ def update_cloudflare_ip(public_ip):
         json_payload = json.dumps(payload)
 
         cloudflare_conn.request(
-            "PUT", f"/client/v4/zones/{zone_id}/dns_records/{
-                dns_record_id}", json_payload, req_headers
+            "PUT", f"/client/v4/zones/{zone_id}/dns_records/{dns_record_id}", body=json_payload, headers=req_headers
         )
 
         res = cloudflare_conn.getresponse()
@@ -122,8 +119,8 @@ def main():
             logging.info(f"Same IP detected ({current_ip}), not updating")
         else:
             data = update_cloudflare_ip(current_ip)
-            logging.info(f"Updated ip for {domain_name} to {current_ip}")
-            logging.info("Response:"+data.decode("utf-8"))
+            logging.info(f"Updated IP for {domain_name} to {current_ip}")
+            logging.info("Response: " + data.decode("utf-8"))
     except Exception as e:
         logging.error(f"{e}")
 
