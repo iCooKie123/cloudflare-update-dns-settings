@@ -8,5 +8,6 @@ dns_record_id = "your cloudfare dns_record_id"
 domain_name = "mydomain.example.com"
 auth_key = "cloudfare_api_key"
 auth_email = "test@example.com"
-proxied = True
+ntfy_ip = "optional, base url/ip of ntfy instance (e.g ntfy.sh)"
+ntfy_url = "optional, the subscribed topic you want to send the notification to (e.g cloudflare_ip)
 ```
