@@ -13,6 +13,7 @@ dns_record_id = os.getenv('dns_record_id')
 domain_name = os.getenv('domain_name')
 auth_key = os.getenv('auth_key')
 auth_email = os.getenv('auth_email')
+ntfy_ip = os.getenv("ntfy_ip")
 proxied = True
 
 current_date = datetime.datetime.now().strftime("%d.%m.%Y %H:%M")
@@ -29,6 +30,29 @@ logging.basicConfig(
 )
 
 
+def send_ntfy_message(body_message):
+    if ntfy_ip is None:
+        return
+    try:
+        ntfy_conn = http.client.HTTPConnection(ntfy_ip)
+        msg = body_message
+        ntfy_conn.request("POST", "/test", body=msg)
+        response = ntfy_conn.getresponse()
+
+        if response.status != 200:
+            raise ValueError(
+                "Failed to send notification, status code: {}, message: {}".format(
+                    response.status, json.dumps(json.loads(
+                        response.read().decode()), indent=4)
+                )
+            )
+
+        return response
+    except Exception as e:
+        logging.error("Error pushing notification: {}".format(e))
+        raise
+
+
 def get_public_ip():
     try:
         aws_conn = http.client.HTTPSConnection("checkip.amazonaws.com")
@@ -37,7 +61,8 @@ def get_public_ip():
         if response_ip.status != 200:
             raise ValueError(
                 "Failed to get IP, status code: {}, message: {}".format(
-                    response_ip.status, response_ip.read().decode()
+                    response_ip.status, json.dumps(
+                        json.loads(response_ip.read().decode()), indent=4)
                 )
             )
         ip = response_ip.read().decode().strip()
@@ -58,7 +83,8 @@ def check_sameip(current_ip):
         if response.status != 200:
             raise ValueError(
                 "Failed to check IP, status code: {}, message: {}".format(
-                    response.status, response.read().decode()
+                    response.status, json.dumps(json.loads(
+                        response.read().decode()), indent=4)
                 )
             )
 
@@ -101,11 +127,11 @@ def update_cloudflare_ip(public_ip):
         if res.status != 200:
             raise ValueError(
                 "Failed to update IP, status code: {}, message: {}".format(
-                    res.status, res.read().decode()
+                    res.status, json.dumps(json.loads(
+                        res.read().decode()), indent=4)
                 )
             )
-
-        data = res.read()
+        data = json.dumps(json.loads(res.read().decode()), indent=4)
         cloudflare_conn.close()
         return data
     except Exception as e:
@@ -120,13 +146,19 @@ def main():
         if same_ip:
             logging.info(
                 "Same IP detected ({}), not updating".format(current_ip))
+            send_ntfy_message("Same ip detected, not updating.")
         else:
             data = update_cloudflare_ip(current_ip)
             logging.info("Updated IP for {} to {}".format(
                 domain_name, current_ip))
-            logging.info("Response: " + data.decode("utf-8"))
+            logging.info("Response: " + data)
+
+            send_ntfy_message("Updated ip to {}".format(current_ip))
     except Exception as e:
         logging.error("{}".format(e))
+        send_ntfy_message(
+            "There was an error while executing the script: {}".format(e)
+        )
 
 
 if __name__ == '__main__':
