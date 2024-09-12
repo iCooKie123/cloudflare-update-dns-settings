@@ -4,6 +4,7 @@ import json
 import os
 from dotenv import load_dotenv
 import logging
+import subprocess
 
 load_dotenv()
 
@@ -15,7 +16,7 @@ auth_key = os.getenv('auth_key')
 auth_email = os.getenv('auth_email')
 ntfy_ip = os.getenv("ntfy_ip")
 proxied = True
-
+ntfy_url = os.getenv("ntfy_url")
 current_date = datetime.datetime.now().strftime("%d.%m.%Y %H:%M")
 req_headers = {
     'Content-Type': "application/json",
@@ -34,20 +35,18 @@ def send_ntfy_message(body_message):
     if ntfy_ip is None:
         return
     try:
-        ntfy_conn = http.client.HTTPConnection(ntfy_ip)
-        msg = body_message
-        ntfy_conn.request("POST", "/test", body=msg)
-        response = ntfy_conn.getresponse()
+        curl_command = [
+            'curl', '-d', body_message, '-o', '/dev/null', '-s', '-w', '%{http_code}',
+            "{}/{}".format(ntfy_ip, ntfy_url)
+        ]
 
-        if response.status != 200:
-            raise ValueError(
-                "Failed to send notification, status code: {}, message: {}".format(
-                    response.status, json.dumps(json.loads(
-                        response.read().decode()), indent=4)
-                )
-            )
+        # Run the curl command and capture output
+        result = subprocess.run(curl_command, capture_output=True, text=True)
 
-        return response
+        # Check if the HTTP status code is not 200
+        if result.stdout.strip() != '200':
+            raise ValueError("Non-200 response: {}".format(result.stdout))
+
     except Exception as e:
         logging.error("Error pushing notification: {}".format(e))
         raise
