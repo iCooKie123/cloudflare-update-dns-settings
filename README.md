@@ -10,4 +10,6 @@ auth_key = "cloudfare_api_key"
 auth_email = "test@example.com"
 ntfy_ip = "optional, base url/ip of ntfy instance (e.g ntfy.sh)"
 ntfy_url = "optional, the subscribed topic you want to send the notification to (e.g cloudflare_ip)
+notify_on_pass= "True" //or any other value if you dont want to be notified when ip is not changing
+proxied = "True" // any other value for False
 ```
