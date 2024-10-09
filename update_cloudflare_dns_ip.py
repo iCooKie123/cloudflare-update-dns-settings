@@ -17,6 +17,7 @@ auth_email = os.getenv('auth_email')
 ntfy_ip = os.getenv("ntfy_ip")
 proxied = True
 ntfy_url = os.getenv("ntfy_url")
+notify_on_pass=os.getenv("notify_on_pass")
 current_date = datetime.datetime.now().strftime("%d.%m.%Y %H:%M")
 req_headers = {
     'Content-Type': "application/json",
@@ -145,7 +146,7 @@ def main():
         if same_ip:
             logging.info(
                 "Same IP detected ({}), not updating".format(current_ip))
-            send_ntfy_message("Same ip detected, not updating.")
+            if notify_on_pass: send_ntfy_message("Same ip detected, not updating.")
         else:
             data = update_cloudflare_ip(current_ip)
             logging.info("Updated IP for {} to {}".format(
